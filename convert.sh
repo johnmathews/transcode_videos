@@ -15,12 +15,10 @@ log_message() {
     SUCCESS)
         emoji=" ✅"
         color=""
-        # color="\033[32m"
         ;; # Green
     ERROR)
         emoji=" 💀"
         color=""
-        # color="\033[31m"
         ;; # Red
     *)
         emoji=""
@@ -49,24 +47,9 @@ log_header() {
 # Create log files if they don't exist
 touch "$LOG_FILE" "$ERROR_LOG"
 
-# Find video files
-found_videos=$(find . -maxdepth 1 -type f \( -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.mov" -o -iname "*.flv" -o -iname "*.wmv" -o -iname "*.webm" \) -print0)
-
-# Print the list of videos to convert
-if [ -z "$found_videos" ]; then
-    echo "No video files found for conversion."
-    exit 1
-else
-    echo -e "\nVideos to be processed:"
-    echo "$found_videos" | tr '\0' '\n' | while IFS= read -r video; do
-        echo "- $(basename "$video")"
-    done
-    echo
-fi
-
-# Process videos
-echo "$found_videos" | while IFS= read -r -d '' f; do
-
+# Find video files and process them
+find . -maxdepth 1 -type f \( -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.mov" -o -iname "*.flv" -o -iname "*.wmv" -o -iname "*.webm" \) -print0 |
+while IFS= read -r -d '' f; do
     dir="$(dirname "$f")"
     filename="$(basename "${f%.*}")"
     original_dir="$dir/original"
