@@ -1,83 +1,156 @@
 #!/bin/bash
+###############################################################################
+# Video Conversion Script
+#
+# Searches the current folder for video files (avi, mkv, mp4, mov, flv, wmv, webm),
+# moves each file to an "original" subfolder, and converts it to MP4 (using ffmpeg)
+# saved in a "converted" subfolder.
+#
+# Duplicate basenames are resolved by appending a counter.
+#
+# Usage:
+#   ./convert.sh         # Normal mode: moves & converts files
+#   ./convert.sh -d      # Dry run mode: list files to be processed without conversion
+#   ./convert.sh -h      # Show this help message
+#
+# Requirements: ffmpeg must be installed.
+###############################################################################
 
+# Variables
 LOG_FILE="conversion.log"
 ERROR_LOG="conversion_errors.log"
+DRY_RUN=false
 
-# Function to log messages with timestamps, headers, and emojis
-log_message() {
-    local level="$1" # INFO, SUCCESS, ERROR
-    local message="$2"
-    local log_file="$3"
-    local emoji timestamp
-    local color reset_color
+# Display help message and exit
+display_help() {
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  -d         Dry run mode: list files to convert without converting"
+    echo "  -h, --help Show this help message and exit"
+    exit 0
+}
 
-    case $level in
-    SUCCESS)
-        emoji=" ✅"
-        color=""
-        ;; # Green
-    ERROR)
-        emoji=" 💀"
-        color=""
-        ;; # Red
-    *)
-        emoji=""
-        color=""
-        ;;
+# Parse command-line options
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+        -d) DRY_RUN=true ;;
+        -h|--help) display_help ;;
+        *) echo "Unknown option: $1" ; display_help ;;
     esac
-    reset_color="\033[0m"
+    shift
+done
 
-    timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-
-    # Print colored output to the console
-    echo -e "${color}[$timestamp]$emoji $message${reset_color}"
-
-    # Write plain text (no color codes) to the log file
-    echo "[$timestamp] $emoji $message" >>"$log_file"
-}
-
-# Add a section header to log files
-log_header() {
-    local header="$1"
-    local separator="============================================================================="
-
-    echo -e "\n$separator\n$header\n$separator"
-}
+# Check for ffmpeg
+if ! command -v ffmpeg &> /dev/null; then
+    echo "❌ ffmpeg not found. Please install ffmpeg and try again."
+    exit 1
+fi
 
 # Create log files if they don't exist
 touch "$LOG_FILE" "$ERROR_LOG"
 
-# Find video files and process them
-find . -maxdepth 1 -type f \( -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.mov" -o -iname "*.flv" -o -iname "*.wmv" -o -iname "*.webm" \) -print0 |
+# Logging function: prints colored messages to console and plain text to a log file.
+log_message() {
+    local level="$1"   # INFO, SUCCESS, or ERROR
+    local message="$2"
+    local log_file="$3"
+    local emoji color reset_color timestamp
+    reset_color="\033[0m"
+    timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+
+    case "$level" in
+        SUCCESS)
+            emoji="✅"
+            color="\033[0;32m"  # Green
+            ;;
+        ERROR)
+            emoji="💀"
+            color="\033[0;31m"  # Red
+            ;;
+        INFO)
+            emoji="ℹ️"
+            color="\033[0;34m"  # Blue
+            ;;
+        *)
+            emoji=""
+            color=""
+            ;;
+    esac
+
+    echo -e "${color}[$timestamp] $emoji $message${reset_color}"
+    echo "[$timestamp] $emoji $message" >> "$log_file"
+}
+
+# Log header function: prints a visual separator with a header.
+log_header() {
+    local header="$1"
+    local separator="============================================================================="
+    echo -e "\n$separator\n$header\n$separator"
+    echo -e "\n$separator\n$header\n$separator" >> "$LOG_FILE"
+}
+
+# Function to generate a unique output filename to avoid duplicate basename conflicts.
+unique_output_filename() {
+    local base_dir="$1"   # e.g., converted directory
+    local name="$2"       # base name without extension
+    local ext="$3"        # file extension (e.g., mp4)
+    local output_file="${base_dir}/${name}.${ext}"
+    local counter=1
+    while [[ -e "$output_file" ]]; do
+        output_file="${base_dir}/${name} (${counter}).${ext}"
+        ((counter++))
+    done
+    echo "$output_file"
+}
+
+# Find common video files (only in the current directory)
+find . -maxdepth 1 -type f \( -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mp4" \
+    -o -iname "*.mov" -o -iname "*.flv" -o -iname "*.wmv" -o -iname "*.webm" \) -print0 |
 while IFS= read -r -d '' f; do
+    # Get the file's directory and names
     dir="$(dirname "$f")"
+    base_filename="$(basename "$f")"
     filename="$(basename "${f%.*}")"
-    original_dir="$dir/original"
-    converted_dir="$dir/converted"
-    input="$original_dir/$(basename "$f")"
-    output="$converted_dir/${filename}.mp4"
+
+    # Define directories and paths
+    original_dir="${dir}/original"
+    converted_dir="${dir}/converted"
+    input="${original_dir}/${base_filename}"
+    output=$(unique_output_filename "$converted_dir" "$filename" "mp4")
+
+    # Dry run: list the intended conversion and skip actual processing.
+    if $DRY_RUN; then
+        echo "📂 Would process: $f -> $output"
+        continue
+    fi
 
     # Create necessary directories
     mkdir -p "$original_dir" "$converted_dir"
 
-    # Add a section for the file conversion
+    # Log the start of processing for this file
     log_header "🔥 Processing File: $filename"
 
-    # Move the file to the original directory if not already moved
+    # Move file to the original directory if not already moved.
     if [ ! -f "$input" ]; then
-        mv "$f" "$original_dir/"
-        log_message "INFO" "🚚 Moved '$f' to '$original_dir/'" "$LOG_FILE"
+        if mv "$f" "$original_dir/"; then
+            log_message "INFO" "Moved '$f' to '$original_dir/'" "$LOG_FILE"
+        else
+            log_message "ERROR" "Failed to move '$f' to '$original_dir/'" "$ERROR_LOG"
+            continue
+        fi
     fi
 
-    # Skip conversion if the file has already been processed
+    # If an output already exists, skip conversion.
     if [ -f "$output" ]; then
         log_message "INFO" "Skipping '$input': already converted." "$LOG_FILE"
         continue
     fi
 
-    # Convert the file
-    log_message "INFO" "⚙️  Converting '$input' to '$output'..." "$LOG_FILE"
-    if ffmpeg -nostdin -hide_banner -loglevel error -stats -i "$input" -c:v libx264 -preset slow -crf 18 -threads 0 -profile:v high -level 4.2 -pix_fmt yuv420p \
+    # Convert the file using ffmpeg.
+    log_message "INFO" "Converting '$input' to '$output'..." "$LOG_FILE"
+    if ffmpeg -nostdin -hide_banner -loglevel warning -stats -i "$input" \
+        -c:v libx264 -preset slow -crf 18 -threads 0 -profile:v high -level 4.2 -pix_fmt yuv420p \
         -c:a aac -b:a 256k "$output"; then
         log_message "SUCCESS" "Successfully converted '$input' to '$output'." "$LOG_FILE"
     else
