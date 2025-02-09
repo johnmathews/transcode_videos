@@ -1,4 +1,4 @@
-# Transcode Script
+# Transcode Script 🚀
 
 A Bash script that automates video conversion using FFmpeg. It searches the
 current directory for common video files, moves them into an `original` folder,
@@ -17,15 +17,15 @@ idempotent—re-running it skips already processed files.
 - **Duplicate Handling:**  
   Resolves duplicate basenames by appending a counter to the output filename.
 
-- **Dry Run Mode:**  
+- **Dry Run Mode:**  👀
   Use the `-d` flag to list files that would be processed without converting
   them.
 
-- **Robust Error Handling:**  
+- **Robust Error Handling:** ⚠️
   Uses temporary output files to ensure that incomplete conversions do not
   register as successful. Logs conversion progress and errors.
 
-- **Idempotency:**  
+- **Idempotency:** 🔄
   Safe to re-run—the script skips files that have already been moved and
   converted.
 
@@ -34,7 +34,7 @@ idempotent—re-running it skips already processed files.
 - **Bash** (tested on Linux/macOS)
 - **FFmpeg** (must be installed and available in your PATH)
 
-## Installation
+## Installation 📥
 
 1. **Clone the repository:**
 
@@ -54,7 +54,7 @@ cd transcode-script
 chmod +x transcode.sh
 ```
 
-## Usage
+## Usage ▶️
 
 Run the script from the directory containing your video files.
 
@@ -71,7 +71,7 @@ Run the script from the directory containing your video files.
   ./transcode.sh -h
   ```
 
-## How It Works
+## How It Works 🔧
 
 1. File Discovery:
 
