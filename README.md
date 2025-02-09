@@ -8,24 +8,30 @@ idempotent—re-running it skips already processed files.
 
 ## Features
 
-- **Automatic File Organization:**  
+- **Automatic File Organization:** 📁
+
   Moves original video files to an `original` directory before conversion.
 
-- **Video Conversion:**  
+- **Video Conversion:**
+
   Converts videos to MP4 using FFmpeg with H.264 (libx264) and AAC encoding.
 
-- **Duplicate Handling:**  
+- **Duplicate Handling:**
+
   Resolves duplicate basenames by appending a counter to the output filename.
 
-- **Dry Run Mode:**  👀
+- **Dry Run Mode:** 👀
+
   Use the `-d` flag to list files that would be processed without converting
   them.
 
 - **Robust Error Handling:** ⚠️
+
   Uses temporary output files to ensure that incomplete conversions do not
   register as successful. Logs conversion progress and errors.
 
 - **Idempotency:** 🔄
+
   Safe to re-run—the script skips files that have already been moved and
   converted.
 
