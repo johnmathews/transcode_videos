@@ -104,10 +104,14 @@ unique_output_filename() {
     echo "$output_file"
 }
 
+# Count total files to process in the current directory (matching video file extensions)
+TOTAL_FILES=$(find . -maxdepth 1 -type f \( -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.mov" -o -iname "*.flv" -o -iname "*.wmv" -o -iname "*.webm" \) -print0 | tr '\0' '\n' | wc -l)
+COUNTER=0
+
 # Find common video files (only in the current directory)
-find . -maxdepth 1 -type f \( -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mp4" \
-    -o -iname "*.mov" -o -iname "*.flv" -o -iname "*.wmv" -o -iname "*.webm" \) -print0 |
+find . -maxdepth 1 -type f \( -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.mov" -o -iname "*.flv" -o -iname "*.wmv" -o -iname "*.webm" \) -print0 |
 while IFS= read -r -d '' f; do
+    COUNTER=$((COUNTER+1))
     # Get the file's directory and names
     dir="$(dirname "$f")"
     base_filename="$(basename "$f")"
@@ -122,15 +126,15 @@ while IFS= read -r -d '' f; do
 
     # Dry run: list the intended conversion and skip actual processing.
     if $DRY_RUN; then
-        echo "📂 Would process: $f -> $output"
+        echo "📂 Would process file ${COUNTER}/${TOTAL_FILES}: $f -> $output"
         continue
     fi
 
     # Create necessary directories
     mkdir -p "$original_dir" "$converted_dir"
 
-    # Log the start of processing for this file
-    log_header "🔥 Processing File: $filename"
+    # Log the start of processing for this file with numbering.
+    log_header "🔥 Processing file ${COUNTER}/${TOTAL_FILES}: $filename"
 
     # Move file to the original directory if not already moved.
     if [ ! -f "$input" ]; then

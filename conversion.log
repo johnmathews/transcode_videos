@@ -160,3 +160,46 @@
 =============================================================================
 [2025-02-09 14:47:59] ℹ️ Moved './Gawx-October_November.webm' to './original/'
 [2025-02-09 14:47:59] ℹ️ Converting './original/Gawx-October_November.webm' to './converted/Gawx-October_November.mp4'...
+[2025-02-09 14:50:02] ✅ Successfully converted './original/Gawx-October_November.webm' to './converted/Gawx-October_November.mp4'.
+
+=============================================================================
+🔥 Processing File: Mat_Marrash-Studio_Lighting_4x5_with_Tariq_Tarey_-_Large_Format_Friday
+=============================================================================
+[2025-02-09 14:50:02] ℹ️ Moved './Mat_Marrash-Studio_Lighting_4x5_with_Tariq_Tarey_-_Large_Format_Friday.webm' to './original/'
+[2025-02-09 14:50:02] ℹ️ Converting './original/Mat_Marrash-Studio_Lighting_4x5_with_Tariq_Tarey_-_Large_Format_Friday.webm' to './converted/Mat_Marrash-Studio_Lighting_4x5_with_Tariq_Tarey_-_Large_Format_Friday.mp4'...
+[2025-02-09 15:02:30] ✅ Successfully converted './original/Mat_Marrash-Studio_Lighting_4x5_with_Tariq_Tarey_-_Large_Format_Friday.webm' to './converted/Mat_Marrash-Studio_Lighting_4x5_with_Tariq_Tarey_-_Large_Format_Friday.mp4'.
+
+=============================================================================
+🔥 Processing File: The_Funny_Carpenter-Trim_Caulking_Secrets_That_Will_Change_The_Way_You_Caulk
+=============================================================================
+[2025-02-09 15:02:30] ℹ️ Moved './The_Funny_Carpenter-Trim_Caulking_Secrets_That_Will_Change_The_Way_You_Caulk.webm' to './original/'
+[2025-02-09 15:02:30] ℹ️ Converting './original/The_Funny_Carpenter-Trim_Caulking_Secrets_That_Will_Change_The_Way_You_Caulk.webm' to './converted/The_Funny_Carpenter-Trim_Caulking_Secrets_That_Will_Change_The_Way_You_Caulk.mp4'...
+[2025-02-09 15:09:27] ✅ Successfully converted './original/The_Funny_Carpenter-Trim_Caulking_Secrets_That_Will_Change_The_Way_You_Caulk.webm' to './converted/The_Funny_Carpenter-Trim_Caulking_Secrets_That_Will_Change_The_Way_You_Caulk.mp4'.
+
+=============================================================================
+🔥 Processing File: Data_with_Zach-Dimensional_data_modeling_and_idempotent_pipelines_in_78_minutes_with_DataExpert.io
+=============================================================================
+[2025-02-09 15:09:27] ℹ️ Moved './Data_with_Zach-Dimensional_data_modeling_and_idempotent_pipelines_in_78_minutes_with_DataExpert.io.webm' to './original/'
+[2025-02-09 15:09:27] ℹ️ Converting './original/Data_with_Zach-Dimensional_data_modeling_and_idempotent_pipelines_in_78_minutes_with_DataExpert.io.webm' to './converted/Data_with_Zach-Dimensional_data_modeling_and_idempotent_pipelines_in_78_minutes_with_DataExpert.io.mp4'...
+[2025-02-09 15:14:43] ✅ Successfully converted './original/Data_with_Zach-Dimensional_data_modeling_and_idempotent_pipelines_in_78_minutes_with_DataExpert.io.webm' to './converted/Data_with_Zach-Dimensional_data_modeling_and_idempotent_pipelines_in_78_minutes_with_DataExpert.io.mp4'.
+
+=============================================================================
+🔥 Processing File: Courtney_Eve_White-After_Thru_-_The_Other_Side_of_Long_Distance_Hiking
+=============================================================================
+[2025-02-09 15:14:43] ℹ️ Moved './Courtney_Eve_White-After_Thru_-_The_Other_Side_of_Long_Distance_Hiking.webm' to './original/'
+[2025-02-09 15:14:43] ℹ️ Converting './original/Courtney_Eve_White-After_Thru_-_The_Other_Side_of_Long_Distance_Hiking.webm' to './converted/Courtney_Eve_White-After_Thru_-_The_Other_Side_of_Long_Distance_Hiking.mp4'...
+[2025-02-09 15:32:32] ✅ Successfully converted './original/Courtney_Eve_White-After_Thru_-_The_Other_Side_of_Long_Distance_Hiking.webm' to './converted/Courtney_Eve_White-After_Thru_-_The_Other_Side_of_Long_Distance_Hiking.mp4'.
+
+=============================================================================
+🔥 Processing File: David_Hoffman-Flying_in_1979_It_Was_a_New_Experience
+=============================================================================
+[2025-02-09 15:32:32] ℹ️ Moved './David_Hoffman-Flying_in_1979_It_Was_a_New_Experience.webm' to './original/'
+[2025-02-09 15:32:32] ℹ️ Converting './original/David_Hoffman-Flying_in_1979_It_Was_a_New_Experience.webm' to './converted/David_Hoffman-Flying_in_1979_It_Was_a_New_Experience.mp4'...
+[2025-02-09 15:33:08] ✅ Successfully converted './original/David_Hoffman-Flying_in_1979_It_Was_a_New_Experience.webm' to './converted/David_Hoffman-Flying_in_1979_It_Was_a_New_Experience.mp4'.
+
+=============================================================================
+🔥 Processing File: test_gawx
+=============================================================================
+[2025-02-09 15:33:08] ℹ️ Moved './test_gawx.webm' to './original/'
+[2025-02-09 15:33:08] ℹ️ Converting './original/test_gawx.webm' to './converted/test_gawx.mp4'...
+[2025-02-09 15:34:49] ✅ Successfully converted './original/test_gawx.webm' to './converted/test_gawx.mp4'.
