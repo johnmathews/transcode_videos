@@ -133,3 +133,16 @@
 [2025-02-07 21:35:39]  ⚙️  Converting './original/test_mat.webm' to './converted/test_mat.mp4'...
 [2025-02-07 21:35:53]  🚚 Moved './Spaceman-Dune_2_Is_The_End_of_Modern_Cinema.webm' to './original/'
 [2025-02-07 21:35:53]  ⚙️  Converting './original/Spaceman-Dune_2_Is_The_End_of_Modern_Cinema.webm' to './converted/Spaceman-Dune_2_Is_The_End_of_Modern_Cinema.mp4'...
+
+=============================================================================
+🔥 Processing File: Gawx_2-1._Melancholy
+=============================================================================
+[2025-02-09 14:13:47] ℹ️ Moved './Gawx_2-1._Melancholy.webm' to './original/'
+[2025-02-09 14:13:47] ℹ️ Converting './original/Gawx_2-1._Melancholy.webm' to './converted/Gawx_2-1._Melancholy.mp4'...
+[2025-02-09 14:15:27] ✅ Successfully converted './original/Gawx_2-1._Melancholy.webm' to './converted/Gawx_2-1._Melancholy.mp4'.
+
+=============================================================================
+🔥 Processing File: KH.infilm-It_s_The_Little_Things_In_Life_Amsterdam_Short_Film
+=============================================================================
+[2025-02-09 14:15:27] ℹ️ Moved './KH.infilm-It_s_The_Little_Things_In_Life_Amsterdam_Short_Film.webm' to './original/'
+[2025-02-09 14:15:27] ℹ️ Converting './original/KH.infilm-It_s_The_Little_Things_In_Life_Amsterdam_Short_Film.webm' to './converted/KH.infilm-It_s_The_Little_Things_In_Life_Amsterdam_Short_Film.mp4'...

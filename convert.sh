@@ -9,9 +9,9 @@
 # Duplicate basenames are resolved by appending a counter.
 #
 # Usage:
-#   ./convert.sh         # Normal mode: moves & converts files
-#   ./convert.sh -d      # Dry run mode: list files to be processed without conversion
-#   ./convert.sh -h      # Show this help message
+#   ./transcode.sh         # Normal mode: moves & converts files
+#   ./transcode.sh -d      # Dry run mode: list files to be processed without conversion
+#   ./transcode.sh -h      # Show this help message
 #
 # Requirements: ffmpeg must be installed.
 ###############################################################################
@@ -118,6 +118,7 @@ while IFS= read -r -d '' f; do
     converted_dir="${dir}/converted"
     input="${original_dir}/${base_filename}"
     output=$(unique_output_filename "$converted_dir" "$filename" "mp4")
+    temp_output="${output}.tmp"
 
     # Dry run: list the intended conversion and skip actual processing.
     if $DRY_RUN; then
@@ -141,19 +142,28 @@ while IFS= read -r -d '' f; do
         fi
     fi
 
-    # If an output already exists, skip conversion.
+    # If the final output already exists, skip conversion.
     if [ -f "$output" ]; then
         log_message "INFO" "Skipping '$input': already converted." "$LOG_FILE"
         continue
     fi
 
-    # Convert the file using ffmpeg.
-    log_message "INFO" "Converting '$input' to '$output'..." "$LOG_FILE"
+    # Remove any leftover temporary file from a previous incomplete run.
+    if [ -f "$temp_output" ]; then
+        rm -f "$temp_output"
+    fi
+
+    # Convert the file using ffmpeg to a temporary file.
+    log_message "INFO" "Converting '$input' to temporary file '$temp_output'..." "$LOG_FILE"
     if ffmpeg -nostdin -hide_banner -loglevel warning -stats -i "$input" \
         -c:v libx264 -preset slow -crf 18 -threads 0 -profile:v high -level 4.2 -pix_fmt yuv420p \
-        -c:a aac -b:a 256k "$output"; then
+        -c:a aac -b:a 256k "$temp_output"
+    then
+        # Rename temp file to final output upon success.
+        mv "$temp_output" "$output"
         log_message "SUCCESS" "Successfully converted '$input' to '$output'." "$LOG_FILE"
     else
         log_message "ERROR" "Failed to convert '$input'." "$ERROR_LOG"
+        rm -f "$temp_output"
     fi
 done
