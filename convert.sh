@@ -105,7 +105,7 @@ unique_output_filename() {
 }
 
 # Count total files to process in the current directory (matching video file extensions)
-TOTAL_FILES=$(find . -maxdepth 1 -type f \( -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.mov" -o -iname "*.flv" -o -iname "*.wmv" -o -iname "*.webm" \) -print0 | tr '\0' '\n' | wc -l)
+TOTAL_FILES=$(find . -maxdepth 1 -type f \( -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.mov" -o -iname "*.flv" -o -iname "*.wmv" -o -iname "*.webm" \) -print0 | tr '\0' '\n' | wc -l | xargs)
 COUNTER=0
 
 # Find common video files (only in the current directory)
@@ -122,7 +122,7 @@ while IFS= read -r -d '' f; do
     converted_dir="${dir}/converted"
     input="${original_dir}/${base_filename}"
     output=$(unique_output_filename "$converted_dir" "$filename" "mp4")
-    temp_output="${output}.tmp"
+    temp_output="${output%.mp4}.temp.mp4"
 
     # Dry run: list the intended conversion and skip actual processing.
     if $DRY_RUN; then

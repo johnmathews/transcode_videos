@@ -203,3 +203,36 @@
 [2025-02-09 15:33:08] ℹ️ Moved './test_gawx.webm' to './original/'
 [2025-02-09 15:33:08] ℹ️ Converting './original/test_gawx.webm' to './converted/test_gawx.mp4'...
 [2025-02-09 15:34:49] ✅ Successfully converted './original/test_gawx.webm' to './converted/test_gawx.mp4'.
+
+=============================================================================
+🔥 Processing file 1/       2: Tibees-The_bizarre_blog_that_taught_everyone_math
+=============================================================================
+[2025-02-23 21:50:50] ℹ️ Moved './Tibees-The_bizarre_blog_that_taught_everyone_math.webm' to './original/'
+[2025-02-23 21:50:50] ℹ️ Converting './original/Tibees-The_bizarre_blog_that_taught_everyone_math.webm' to temporary file './converted/Tibees-The_bizarre_blog_that_taught_everyone_math.mp4.tmp'...
+
+=============================================================================
+🔥 Processing file 2/       2: EF_Pro_Cycling-The_Great_Southern_Country_Full_Film_Lachlan_Morton_s_Around_Australia_Record_Cannondale_POC
+=============================================================================
+[2025-02-23 21:50:50] ℹ️ Moved './EF_Pro_Cycling-The_Great_Southern_Country_Full_Film_Lachlan_Morton_s_Around_Australia_Record_Cannondale_POC.webm' to './original/'
+[2025-02-23 21:50:50] ℹ️ Converting './original/EF_Pro_Cycling-The_Great_Southern_Country_Full_Film_Lachlan_Morton_s_Around_Australia_Record_Cannondale_POC.webm' to temporary file './converted/EF_Pro_Cycling-The_Great_Southern_Country_Full_Film_Lachlan_Morton_s_Around_Australia_Record_Cannondale_POC.mp4.tmp'...
+
+=============================================================================
+🔥 Processing file 1/       2: Tibees-The_bizarre_blog_that_taught_everyone_math
+=============================================================================
+[2025-02-23 21:58:24] ℹ️ Moved './Tibees-The_bizarre_blog_that_taught_everyone_math.webm' to './original/'
+[2025-02-23 21:58:24] ℹ️ Converting './original/Tibees-The_bizarre_blog_that_taught_everyone_math.webm' to temporary file './converted/Tibees-The_bizarre_blog_that_taught_everyone_math.temp.mp4'...
+[2025-02-23 22:02:00] ✅ Successfully converted './original/Tibees-The_bizarre_blog_that_taught_everyone_math.webm' to './converted/Tibees-The_bizarre_blog_that_taught_everyone_math.mp4'.
+
+=============================================================================
+🔥 Processing file 2/       2: EF_Pro_Cycling-The_Great_Southern_Country_Full_Film_Lachlan_Morton_s_Around_Australia_Record_Cannondale_POC
+=============================================================================
+[2025-02-23 22:02:00] ℹ️ Moved './EF_Pro_Cycling-The_Great_Southern_Country_Full_Film_Lachlan_Morton_s_Around_Australia_Record_Cannondale_POC.webm' to './original/'
+[2025-02-23 22:02:00] ℹ️ Converting './original/EF_Pro_Cycling-The_Great_Southern_Country_Full_Film_Lachlan_Morton_s_Around_Australia_Record_Cannondale_POC.webm' to temporary file './converted/EF_Pro_Cycling-The_Great_Southern_Country_Full_Film_Lachlan_Morton_s_Around_Australia_Record_Cannondale_POC.temp.mp4'...
+[2025-02-23 23:23:38] ✅ Successfully converted './original/EF_Pro_Cycling-The_Great_Southern_Country_Full_Film_Lachlan_Morton_s_Around_Australia_Record_Cannondale_POC.webm' to './converted/EF_Pro_Cycling-The_Great_Southern_Country_Full_Film_Lachlan_Morton_s_Around_Australia_Record_Cannondale_POC.mp4'.
+
+=============================================================================
+🔥 Processing file 1/       1: BibleProject-This_Lie_Can_Keep_You_From_Living_Generously
+=============================================================================
+[2025-02-24 14:42:33] ℹ️ Moved './BibleProject-This_Lie_Can_Keep_You_From_Living_Generously.webm' to './original/'
+[2025-02-24 14:42:33] ℹ️ Converting './original/BibleProject-This_Lie_Can_Keep_You_From_Living_Generously.webm' to temporary file './converted/BibleProject-This_Lie_Can_Keep_You_From_Living_Generously.temp.mp4'...
+[2025-02-24 14:43:39] ✅ Successfully converted './original/BibleProject-This_Lie_Can_Keep_You_From_Living_Generously.webm' to './converted/BibleProject-This_Lie_Can_Keep_You_From_Living_Generously.mp4'.
