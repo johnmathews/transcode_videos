@@ -43,7 +43,7 @@ done
 
 # Check for ffmpeg
 if ! command -v ffmpeg &> /dev/null; then
-    echo "❌ ffmpeg not found. Please install ffmpeg and try again."
+    echo "❌  ffmpeg not found. Please install ffmpeg and try again."
     exit 1
 fi
 
@@ -139,16 +139,16 @@ while IFS= read -r -d '' f; do
     # Move file to the original directory if not already moved.
     if [ ! -f "$input" ]; then
         if mv "$f" "$original_dir/"; then
-            log_message "INFO" "Moved '$f' to '$original_dir/'" "$LOG_FILE"
+            log_message "INFO" " Moved '$f' to '$original_dir/'" "$LOG_FILE"
         else
-            log_message "ERROR" "Failed to move '$f' to '$original_dir/'" "$ERROR_LOG"
+            log_message "ERROR" " Failed to move '$f' to '$original_dir/'" "$ERROR_LOG"
             continue
         fi
     fi
 
     # If the final output already exists, skip conversion.
     if [ -f "$output" ]; then
-        log_message "INFO" "Skipping '$input': already converted." "$LOG_FILE"
+        log_message "INFO" " Skipping '$input': already converted." "$LOG_FILE"
         continue
     fi
 
@@ -158,14 +158,14 @@ while IFS= read -r -d '' f; do
     fi
 
     # Convert the file using ffmpeg to a temporary file.
-    log_message "INFO" "Converting '$input' to temporary file '$temp_output'..." "$LOG_FILE"
-    if ffmpeg -nostdin -hide_banner -loglevel warning -i "$input" \
+    log_message "INFO" " Converting '$input' to temporary file '$temp_output'..." "$LOG_FILE"
+    if script -q /dev/null ffmpeg -nostdin -hide_banner -loglevel warning -stats -i "$input" \
         -c:v libx264 -preset slow -crf 18 -threads 0 -profile:v high -level 4.2 -pix_fmt yuv420p \
         -c:a aac -b:a 256k "$temp_output"
     then
         # Rename temp file to final output upon success.
         mv "$temp_output" "$output"
-        log_message "SUCCESS" " Successfully converted '$input' to '$output'." "$LOG_FILE"
+        log_message "SUCCESS" "Successfully converted '$input' to '$output'." "$LOG_FILE"
     else
         log_message "ERROR" "Failed to convert '$input'." "$ERROR_LOG"
         rm -f "$temp_output"
