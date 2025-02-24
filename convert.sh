@@ -126,7 +126,7 @@ while IFS= read -r -d '' f; do
 
     # Dry run: list the intended conversion and skip actual processing.
     if $DRY_RUN; then
-        echo "📂 Would process file ${COUNTER}/${TOTAL_FILES}: $f -> $output"
+        echo "📂  Would process file ${COUNTER}/${TOTAL_FILES}: $f -> $output"
         continue
     fi
 
@@ -134,7 +134,7 @@ while IFS= read -r -d '' f; do
     mkdir -p "$original_dir" "$converted_dir"
 
     # Log the start of processing for this file with numbering.
-    log_header "🔥 Processing file ${COUNTER}/${TOTAL_FILES}: $filename"
+    log_header "🔥  Processing file ${COUNTER}/${TOTAL_FILES}: $filename"
 
     # Move file to the original directory if not already moved.
     if [ ! -f "$input" ]; then
