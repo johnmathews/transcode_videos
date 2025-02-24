@@ -159,7 +159,7 @@ while IFS= read -r -d '' f; do
 
     # Convert the file using ffmpeg to a temporary file.
     log_message "INFO" "Converting '$input' to temporary file '$temp_output'..." "$LOG_FILE"
-    if ffmpeg -nostdin -hide_banner -loglevel warning -stats -i "$input" \
+    if ffmpeg -nostdin -hide_banner -loglevel warning -i "$input" \
         -c:v libx264 -preset slow -crf 18 -threads 0 -profile:v high -level 4.2 -pix_fmt yuv420p \
         -c:a aac -b:a 256k "$temp_output"
     then
