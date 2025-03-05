@@ -163,6 +163,8 @@ for f in "${files[@]}"; do
         rm -f "$temp_output"
     fi
 
+    log_message "INFO" "Converting '$input' to temporary file '$temp_output'..." "$LOG_FILE"
+
     duration=$(ffprobe -v error -select_streams v:0 -show_entries format=duration \
         -of default=noprint_wrappers=1:nokey=1 "$input")
     if [ -n "$duration" ]; then
@@ -172,8 +174,6 @@ for f in "${files[@]}"; do
         seconds=$((duration_int % 60))
         log_message "INFO" "Total video duration: ${hours}h ${minutes}m ${seconds}s" "$LOG_FILE"
     fi
-
-    log_message "INFO" "Converting '$input' to temporary file '$temp_output'..." "$LOG_FILE"
 
     # Build conversion command using -progress for machine-friendly progress.
     CONVERT_CMD=(ffmpeg -nostdin -hide_banner -loglevel error -progress - -i "$input" \
