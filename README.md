@@ -3,44 +3,52 @@
 A Bash script that automates video conversion using FFmpeg. It searches the
 current directory for common video files, moves them into an `original` folder,
 and converts them to MP4 format (saved in a `converted` folder). The script uses
-temporary files during conversion to handle mid-run cancellations safely and is
+temporary files during conversion to safely handle mid-run cancellations and is
 idempotent—re-running it skips already processed files.
 
 ## Features
 
-- **Automatic File Organization:** 📁
-
+- **Automatic File Organization:** 📁  
   Moves original video files to an `original` directory before conversion.
 
-- **Video Conversion:**
+- **Real-Time, Single-Line Conversion Progress:** ⏱️  
+  Uses FFmpeg’s `-progress -` option and an AWK script to display conversion
+  progress (frame count, fps, elapsed time, speed) on a single, continuously
+  updated line in the console.
 
+- **Video Conversion:**  
   Converts videos to MP4 using FFmpeg with H.264 (libx264) and AAC encoding.
 
-- **Duplicate Handling:**
-
+- **Duplicate Handling:**  
   Resolves duplicate basenames by appending a counter to the output filename.
 
-- **Dry Run Mode:** 👀
+- **Dry Run Mode:** 👀  
+  Use the `-d` flag to list files that would be processed without converting them.
 
-  Use the `-d` flag to list files that would be processed without converting
-  them.
-
-- **Robust Error Handling:** ⚠️
-
+- **Robust Error Handling:** ⚠️  
   Uses temporary output files to ensure that incomplete conversions do not
-  register as successful. Logs conversion progress and errors.
+  register as successful. Logs conversion progress and errors to separate log files.
 
-- **Idempotency:** 🔄
+- **Optional Real-Time Buffering:**  
+  If available, the script uses `unbuffer` (from the expect package) to improve
+  the real-time display of conversion progress.
 
-  Safe to re-run—the script skips files that have already been moved and
-  converted.
+- **Idempotency:** 🔄  
+  Safe to re-run—the script skips files that have already been moved and converted.
 
 ## Requirements
 
 - **Bash** (tested on Linux/macOS)
 - **FFmpeg** (must be installed and available in your PATH)
+- **FFprobe** (part of FFmpeg)
+- *Optional:* **unbuffer** (from the expect package) for enhanced real-time progress output
 
 ## Installation 📥
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/yourusername/transcode-script.git
 
 1. **Clone the repository:**
 
