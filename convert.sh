@@ -3,15 +3,15 @@
 # Video Conversion Script
 #
 # Searches the current folder for video files (avi, mkv, mp4, mov, flv, wmv, webm),
-# moves each file to an "original" subfolder, and converts it to MP4 (using ffmpeg)
-# saved in a "converted" subfolder.
+# prints a numbered list of identified files, moves each file to an "original" subfolder,
+# and converts it to MP4 (using ffmpeg) saved in a "converted" subfolder.
 #
 # Duplicate basenames are resolved by appending a counter.
 #
 # Usage:
-#   ./transcode.sh         # Normal mode: moves & converts files
-#   ./transcode.sh -d      # Dry run mode: list files to be processed without conversion
-#   ./transcode.sh -h      # Show this help message
+#   ./convert.sh         # Normal mode: moves & converts files
+#   ./convert.sh -d      # Dry run mode: list files to convert without converting
+#   ./convert.sh -h      # Show this help message
 #
 # Requirements: ffmpeg must be installed.
 ###############################################################################
@@ -104,12 +104,22 @@ unique_output_filename() {
     echo "$output_file"
 }
 
-# Count total files to process in the current directory (matching video file extensions)
-TOTAL_FILES=$(find . -maxdepth 1 -type f \( -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.mov" -o -iname "*.flv" -o -iname "*.wmv" -o -iname "*.webm" \) -print0 | tr '\0' '\n' | wc -l | xargs)
+# Build an array of video files in the current directory (zsh-compatible method)
+files=()
+while IFS= read -r -d $'\0' file; do
+    files+=("$file")
+done < <(find . -maxdepth 1 -type f \( -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.mov" -o -iname "*.flv" -o -iname "*.wmv" -o -iname "*.webm" \) -print0)
+TOTAL_FILES=${#files[@]}
 COUNTER=0
 
-# Process each video file using process substitution to avoid subshell issues
-while IFS= read -r -d '' f; do
+# Print numbered list of identified files
+echo "Identified files for conversion:"
+for i in "${!files[@]}"; do
+    printf "%d. %s\n" $((i+1)) "${files[i]}"
+done
+
+# Process each video file
+for f in "${files[@]}"; do
     COUNTER=$((COUNTER+1))
     # Get the file's directory and names
     dir="$(dirname "$f")"
@@ -169,4 +179,4 @@ while IFS= read -r -d '' f; do
         log_message "ERROR" "Failed to convert '$input'." "$ERROR_LOG"
         rm -f "$temp_output"
     fi
-done < <(find . -maxdepth 1 -type f \( -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.mov" -o -iname "*.flv" -o -iname "*.wmv" -o -iname "*.webm" \) -print0)
+done
