@@ -147,7 +147,7 @@ for f in "${files[@]}"; do
 
     if [ ! -f "$input" ]; then
         if mv "$f" "$original_dir/"; then
-            log_message "INFO" " Moved '$f' to '$original_dir/'" "$LOG_FILE"
+            log_message "INFO" "Moved '$f' to '$original_dir/'" "$LOG_FILE"
         else
             log_message "ERROR" " Failed to move '$f' to '$original_dir/'" "$ERROR_LOG"
             continue
@@ -155,7 +155,7 @@ for f in "${files[@]}"; do
     fi
 
     if [ -f "$output" ]; then
-        log_message "INFO" " Skipping '$input': already converted." "$LOG_FILE"
+        log_message "INFO" "Skipping '$input': already converted." "$LOG_FILE"
         continue
     fi
 
@@ -170,10 +170,10 @@ for f in "${files[@]}"; do
         hours=$((duration_int/3600))
         minutes=$(((duration_int % 3600)/60))
         seconds=$((duration_int % 60))
-        log_message "INFO" " Total video duration: ${hours}h ${minutes}m ${seconds}s" "$LOG_FILE"
+        log_message "INFO" "Total video duration: ${hours}h ${minutes}m ${seconds}s" "$LOG_FILE"
     fi
 
-    log_message "INFO" " Converting '$input' to temporary file '$temp_output'..." "$LOG_FILE"
+    log_message "INFO" "Converting '$input' to temporary file '$temp_output'..." "$LOG_FILE"
 
     # Build conversion command using -progress for machine-friendly progress.
     CONVERT_CMD=(ffmpeg -nostdin -hide_banner -loglevel error -progress - -i "$input" \
