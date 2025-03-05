@@ -108,8 +108,7 @@ unique_output_filename() {
 TOTAL_FILES=$(find . -maxdepth 1 -type f \( -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.mov" -o -iname "*.flv" -o -iname "*.wmv" -o -iname "*.webm" \) -print0 | tr '\0' '\n' | wc -l | xargs)
 COUNTER=0
 
-# Find common video files (only in the current directory)
-find . -maxdepth 1 -type f \( -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.mov" -o -iname "*.flv" -o -iname "*.wmv" -o -iname "*.webm" \) -print0 |
+# Process each video file using process substitution to avoid subshell issues
 while IFS= read -r -d '' f; do
     COUNTER=$((COUNTER+1))
     # Get the file's directory and names
@@ -170,4 +169,4 @@ while IFS= read -r -d '' f; do
         log_message "ERROR" "Failed to convert '$input'." "$ERROR_LOG"
         rm -f "$temp_output"
     fi
-done
+done < <(find . -maxdepth 1 -type f \( -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.mov" -o -iname "*.flv" -o -iname "*.wmv" -o -iname "*.webm" \) -print0)
