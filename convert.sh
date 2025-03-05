@@ -76,7 +76,7 @@ log_message() {
             color="\033[0;31m"
             ;;
         INFO)
-            emoji="ℹ️"
+            emoji=""
             color="\033[0;34m"
             ;;
         *)
