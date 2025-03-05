@@ -7,3 +7,5 @@
 *.wmv
 *.part
 *.log
+/converted
+/original

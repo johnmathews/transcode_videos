@@ -165,7 +165,7 @@ while IFS= read -r -d '' f; do
     then
         # Rename temp file to final output upon success.
         mv "$temp_output" "$output"
-        log_message "SUCCESS" "Successfully converted '$input' to '$output'." "$LOG_FILE"
+        log_message "SUCCESS" " Successfully converted '$input' to '$output'." "$LOG_FILE"
     else
         log_message "ERROR" "Failed to convert '$input'." "$ERROR_LOG"
         rm -f "$temp_output"
