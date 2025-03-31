@@ -79,6 +79,10 @@ log_message() {
             emoji=""
             color="\033[0;34m"
             ;;
+        INFO2)
+            emoji=""
+            color="\033[0;31m"
+            ;;
         *)
             emoji=""
             color=""
@@ -172,7 +176,7 @@ for f in "${files[@]}"; do
         hours=$((duration_int/3600))
         minutes=$(((duration_int % 3600)/60))
         seconds=$((duration_int % 60))
-        log_message "INFO" "Total video duration: ${hours}h ${minutes}m ${seconds}s" "$LOG_FILE"
+        log_message "INFO2" "Duration: ${hours}h ${minutes}m ${seconds}s" "$LOG_FILE"
     fi
 
     # Build conversion command using -progress for machine-friendly progress.
