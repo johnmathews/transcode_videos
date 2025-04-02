@@ -81,7 +81,7 @@ log_message() {
             ;;
         INFO2)
             emoji=""
-            color="\033[0;31m"
+            color="\033[0;95m"
             ;;
         *)
             emoji=""
@@ -123,7 +123,13 @@ done < <(find . -maxdepth 1 -type f \( -iname "*.avi" -o -iname "*.mkv" -o -inam
 TOTAL_FILES=${#files[@]}
 COUNTER=0
 
+if [[ "$TOTAL_FILES" -eq 0 ]]; then
+    echo "There is nothing to do."
+    exit 0
+fi
+
 # Print numbered list of identified files.
+echo ""
 echo "Identified files for conversion:"
 for i in "${!files[@]}"; do
     printf "%d. %s\n" $((i+1)) "${files[i]}"
