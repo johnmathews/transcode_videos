@@ -20,21 +20,21 @@
 set -o pipefail
 
 cleanup() {
-    echo -e "\n🛑 Caught interrupt. Cleaning up..."
+    echo -e "\n\n🛑 Caught interrupt. Cleaning up..."
 
     # If a temp output file was being written, remove it
     if [[ -n "$CURRENT_TEMP" && -f "$CURRENT_TEMP" ]]; then
-        echo "🧹 Removing temp file: $CURRENT_TEMP"
+        echo ".. Removing temp file: $CURRENT_TEMP"
         rm -f "$CURRENT_TEMP"
     fi
 
     # If the input file was moved, restore it
     if [[ -n "$CURRENT_INPUT" && -f "$CURRENT_INPUT" && -n "$ORIGINAL_PATH" ]]; then
-        echo "🔄 Moving file back to original location: $ORIGINAL_PATH"
+        echo ".. Moving file back to original location: $ORIGINAL_PATH"
         mv "$CURRENT_INPUT" "$ORIGINAL_PATH"
     fi
 
-    echo "🚪 Exiting."
+    echo "Done."
     exit 1
 }
 trap cleanup SIGINT SIGTERM
@@ -213,7 +213,7 @@ process_video() {
     fi
 
     CONVERT_CMD=(nice -n 10 ffmpeg -nostdin -hide_banner -loglevel error -progress - -i "$input" \
-        -c:v h264_videotoolbox -q:v 10 -pix_fmt yuv420p \
+        -c:v libx264 -preset slow -crf 18 \
         -c:a aac -b:a 256k "$temp_output")
 
     "${CONVERT_CMD[@]}" 2>&1 | awk '
