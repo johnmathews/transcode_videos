@@ -23,6 +23,7 @@ set -o pipefail
 LOG_FILE="conversion.log"
 ERROR_LOG="conversion_errors.log"
 DRY_RUN=false
+MAX_JOBS=4
 
 # Display help message and exit
 display_help() {
@@ -30,6 +31,7 @@ display_help() {
     echo ""
     echo "Options:"
     echo "  -d         Dry run mode: list files to convert without converting"
+    echo "  -j N       Run up to N conversions in parallel (default: 4)"
     echo "  -h, --help Show this help message and exit"
     exit 0
 }
@@ -38,6 +40,14 @@ display_help() {
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
         -d) DRY_RUN=true ;;
+        -j|--jobs)
+            shift
+            MAX_JOBS="$1"
+            if ! [[ "$MAX_JOBS" =~ ^[0-9]+$ ]]; then
+                echo "Invalid job count: $MAX_JOBS"
+                exit 1
+            fi
+            ;;
         -h|--help) display_help ;;
         *) echo "Unknown option: $1" ; display_help ;;
     esac
@@ -124,7 +134,7 @@ TOTAL_FILES=${#files[@]}
 COUNTER=0
 
 if [[ "$TOTAL_FILES" -eq 0 ]]; then
-    echo "There is nothing to do."
+    echo "There are no files to convert."
     exit 0
 fi
 
@@ -135,8 +145,8 @@ for i in "${!files[@]}"; do
     printf "%d. %s\n" $((i+1)) "${files[i]}"
 done
 
-# Process each video file.
-for f in "${files[@]}"; do
+process_video() {
+    local f="$1"
     COUNTER=$((COUNTER+1))
     dir="$(dirname "$f")"
     base_filename="$(basename "$f")"
@@ -149,7 +159,7 @@ for f in "${files[@]}"; do
 
     if $DRY_RUN; then
         echo "📂  Would process file ${COUNTER}/${TOTAL_FILES}: $f -> $output"
-        continue
+        return
     fi
 
     mkdir -p "$original_dir" "$converted_dir"
@@ -160,17 +170,13 @@ for f in "${files[@]}"; do
             log_message "INFO" "Moved '$f' to '$original_dir/'" "$LOG_FILE"
         else
             log_message "ERROR" " Failed to move '$f' to '$original_dir/'" "$ERROR_LOG"
-            continue
+            return
         fi
     fi
 
     if [ -f "$output" ]; then
         log_message "INFO" "Skipping '$input': already converted." "$LOG_FILE"
-        continue
-    fi
-
-    if [ -f "$temp_output" ]; then
-        rm -f "$temp_output"
+        return
     fi
 
     log_message "INFO" "Converting '$input' to temporary file '$temp_output'..." "$LOG_FILE"
@@ -185,18 +191,16 @@ for f in "${files[@]}"; do
         log_message "INFO2" "Duration: ${hours}h ${minutes}m ${seconds}s" "$LOG_FILE"
     fi
 
-    # Build conversion command using -progress for machine-friendly progress.
-    CONVERT_CMD=(ffmpeg -nostdin -hide_banner -loglevel error -progress - -i "$input" \
-        -c:v libx264 -preset slow -crf 18 -threads 0 -profile:v high -level 4.2 -pix_fmt yuv420p \
+    # Use H.264 hardware acceleration for best compatibility with QuickLook
+    CONVERT_CMD=(nice -n 10 ffmpeg -nostdin -hide_banner -loglevel error -progress - -i "$input" \
+        -c:v h264_videotoolbox -b:v 6000k -pix_fmt yuv420p \
         -c:a aac -b:a 256k "$temp_output")
 
-    # Run conversion and process progress output via awk to update one line.
     "${CONVERT_CMD[@]}" 2>&1 | awk '
     BEGIN {
       frame=""; fps=""; out_time=""; speed="";
     }
     {
-      # Parse key=value lines.
       split($0, a, "=");
       key = a[1]; value = a[2];
       if(key=="frame") { frame = value; }
@@ -204,12 +208,10 @@ for f in "${files[@]}"; do
       else if(key=="out_time") { out_time = value; }
       else if(key=="speed") { speed = value; }
       else if(key=="progress" && value=="continue") {
-          # Print update on one line using carriage return.
           printf("\rframe=%s, fps=%s, time=%s, speed=%s", frame, fps, out_time, speed);
           fflush(stdout);
       }
       else if(key=="progress" && value=="end") {
-          # Final update, then break.
           printf("\rframe=%s, fps=%s, time=%s, speed=%s\n", frame, fps, out_time, speed);
           fflush(stdout);
           exit;
@@ -217,13 +219,32 @@ for f in "${files[@]}"; do
     }'
     ffmpeg_ec=${PIPESTATUS[0]}
 
-    echo ""  # Ensure newline after progress output.
+    echo ""  # newline after progress
 
     if [ $ffmpeg_ec -eq 0 ]; then
         mv "$temp_output" "$output"
-        log_message "SUCCESS" " Successfully converted '$input' to '$output'." "$LOG_FILE"
+        log_message "SUCCESS" "Successfully converted '$input' to '$output'." "$LOG_FILE"
     else
         log_message "ERROR" "Failed to convert '$input'." "$ERROR_LOG"
         rm -f "$temp_output"
     fi
+}
+
+
+
+# Process each video file.
+CURRENT_JOBS=0
+
+for f in "${files[@]}"; do
+    (
+        process_video "$f"
+    ) &
+
+    ((CURRENT_JOBS++))
+    if (( CURRENT_JOBS >= MAX_JOBS )); then
+        wait -n
+        ((CURRENT_JOBS--))
+    fi
 done
+
+wait  # wait for any remaining jobs
