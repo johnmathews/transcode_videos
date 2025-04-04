@@ -19,11 +19,17 @@
 
 set -o pipefail
 
+cleanup() {
+    echo -e "\n🛑 Caught interrupt. Killing running jobs..."
+    pkill -P $$  # Kill all child processes of this script
+    exit 1
+}
+trap cleanup SIGINT SIGTERM
+
 # Variables
 LOG_FILE="conversion.log"
 ERROR_LOG="conversion_errors.log"
 DRY_RUN=false
-MAX_JOBS=4
 
 # Display help message and exit
 display_help() {
@@ -31,7 +37,6 @@ display_help() {
     echo ""
     echo "Options:"
     echo "  -d         Dry run mode: list files to convert without converting"
-    echo "  -j N       Run up to N conversions in parallel (default: 4)"
     echo "  -h, --help Show this help message and exit"
     exit 0
 }
@@ -40,14 +45,6 @@ display_help() {
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
         -d) DRY_RUN=true ;;
-        -j|--jobs)
-            shift
-            MAX_JOBS="$1"
-            if ! [[ "$MAX_JOBS" =~ ^[0-9]+$ ]]; then
-                echo "Invalid job count: $MAX_JOBS"
-                exit 1
-            fi
-            ;;
         -h|--help) display_help ;;
         *) echo "Unknown option: $1" ; display_help ;;
     esac
@@ -147,104 +144,104 @@ done
 
 process_video() {
     local f="$1"
-    COUNTER=$((COUNTER+1))
-    dir="$(dirname "$f")"
-    base_filename="$(basename "$f")"
-    filename="$(basename "${f%.*}")"
-    original_dir="${dir}/original"
-    converted_dir="${dir}/converted"
-    input="${original_dir}/${base_filename}"
-    output=$(unique_output_filename "$converted_dir" "$filename" "mp4")
-    temp_output="${output%.mp4}.temp.mp4"
+    local safe_name
+    safe_name="$(basename "${f%.*}" | tr -c '[:alnum:]_' '_')"
+    local tmp_log="temp_log_${safe_name}.txt"
 
-    if $DRY_RUN; then
-        echo "📂  Would process file ${COUNTER}/${TOTAL_FILES}: $f -> $output"
-        return
-    fi
+    {
+        # everything currently inside process_video goes in this block
+        # remove the outer `process_video() { ... }` lines if you're copying this whole section
 
-    mkdir -p "$original_dir" "$converted_dir"
-    log_header "🔥  Processing file ${COUNTER}/${TOTAL_FILES}: $filename"
+        COUNTER=$((COUNTER+1))
+        dir="$(dirname "$f")"
+        base_filename="$(basename "$f")"
+        filename="$(basename "${f%.*}")"
+        original_dir="${dir}/original"
+        converted_dir="${dir}/converted"
+        input="${original_dir}/${base_filename}"
+        output=$(unique_output_filename "$converted_dir" "$filename" "mp4")
+        temp_output="${output%.mp4}.temp.mp4"
 
-    if [ ! -f "$input" ]; then
-        if mv "$f" "$original_dir/"; then
-            log_message "INFO" "Moved '$f' to '$original_dir/'" "$LOG_FILE"
-        else
-            log_message "ERROR" " Failed to move '$f' to '$original_dir/'" "$ERROR_LOG"
+        if $DRY_RUN; then
+            echo "📂  Would process file ${COUNTER}/${TOTAL_FILES}: $f -> $output"
             return
         fi
-    fi
 
-    if [ -f "$output" ]; then
-        log_message "INFO" "Skipping '$input': already converted." "$LOG_FILE"
-        return
-    fi
+        mkdir -p "$original_dir" "$converted_dir"
+        log_header "🔥  Processing file ${COUNTER}/${TOTAL_FILES}: $filename"
 
-    log_message "INFO" "Converting '$input' to temporary file '$temp_output'..." "$LOG_FILE"
+        if [ ! -f "$input" ]; then
+            if mv "$f" "$original_dir/"; then
+                log_message "INFO" "Moved '$f' to '$original_dir/'" "$LOG_FILE"
+            else
+                log_message "ERROR" " Failed to move '$f' to '$original_dir/'" "$ERROR_LOG"
+                return
+            fi
+        fi
 
-    duration=$(ffprobe -v error -select_streams v:0 -show_entries format=duration \
-        -of default=noprint_wrappers=1:nokey=1 "$input")
-    if [ -n "$duration" ]; then
-        duration_int=${duration%.*}
-        hours=$((duration_int/3600))
-        minutes=$(((duration_int % 3600)/60))
-        seconds=$((duration_int % 60))
-        log_message "INFO2" "Duration: ${hours}h ${minutes}m ${seconds}s" "$LOG_FILE"
-    fi
+        if [ -f "$output" ]; then
+            log_message "INFO" "Skipping '$input': already converted." "$LOG_FILE"
+            return
+        fi
 
-    # Use H.264 hardware acceleration for best compatibility with QuickLook
-    CONVERT_CMD=(nice -n 10 ffmpeg -nostdin -hide_banner -loglevel error -progress - -i "$input" \
-        -c:v h264_videotoolbox -b:v 6000k -pix_fmt yuv420p \
-        -c:a aac -b:a 256k "$temp_output")
+        log_message "INFO" "Converting '$input' to temporary file '$temp_output'..." "$LOG_FILE"
 
-    "${CONVERT_CMD[@]}" 2>&1 | awk '
-    BEGIN {
-      frame=""; fps=""; out_time=""; speed="";
-    }
-    {
-      split($0, a, "=");
-      key = a[1]; value = a[2];
-      if(key=="frame") { frame = value; }
-      else if(key=="fps") { fps = value; }
-      else if(key=="out_time") { out_time = value; }
-      else if(key=="speed") { speed = value; }
-      else if(key=="progress" && value=="continue") {
-          printf("\rframe=%s, fps=%s, time=%s, speed=%s", frame, fps, out_time, speed);
-          fflush(stdout);
-      }
-      else if(key=="progress" && value=="end") {
-          printf("\rframe=%s, fps=%s, time=%s, speed=%s\n", frame, fps, out_time, speed);
-          fflush(stdout);
-          exit;
-      }
-    }'
-    ffmpeg_ec=${PIPESTATUS[0]}
+        duration=$(ffprobe -v error -select_streams v:0 -show_entries format=duration \
+            -of default=noprint_wrappers=1:nokey=1 "$input")
+        if [ -n "$duration" ]; then
+            duration_int=${duration%.*}
+            hours=$((duration_int/3600))
+            minutes=$(((duration_int % 3600)/60))
+            seconds=$((duration_int % 60))
+            log_message "INFO2" "Duration: ${hours}h ${minutes}m ${seconds}s" "$LOG_FILE"
+        fi
 
-    echo ""  # newline after progress
+        CONVERT_CMD=(nice -n 10 ffmpeg -nostdin -hide_banner -loglevel error -progress - -i "$input" \
+            -c:v h264_videotoolbox -b:v 6000k -pix_fmt yuv420p \
+            -c:a aac -b:a 256k "$temp_output")
 
-    if [ $ffmpeg_ec -eq 0 ]; then
-        mv "$temp_output" "$output"
-        log_message "SUCCESS" "Successfully converted '$input' to '$output'." "$LOG_FILE"
-    else
-        log_message "ERROR" "Failed to convert '$input'." "$ERROR_LOG"
-        rm -f "$temp_output"
-    fi
+        "${CONVERT_CMD[@]}" 2>&1 | awk '
+        BEGIN {
+          frame=""; fps=""; out_time=""; speed="";
+        }
+        {
+          split($0, a, "=");
+          key = a[1]; value = a[2];
+          if(key=="frame") { frame = value; }
+          else if(key=="fps") { fps = value; }
+          else if(key=="out_time") { out_time = value; }
+          else if(key=="speed") { speed = value; }
+          else if(key=="progress" && value=="continue") {
+              printf("\rframe=%s, fps=%s, time=%s, speed=%s", frame, fps, out_time, speed);
+              fflush(stdout);
+          }
+          else if(key=="progress" && value=="end") {
+              printf("\rframe=%s, fps=%s, time=%s, speed=%s\n", frame, fps, out_time, speed);
+              fflush(stdout);
+              exit;
+          }
+        }'
+        ffmpeg_ec=${PIPESTATUS[0]}
+
+        echo ""
+
+        if [ $ffmpeg_ec -eq 0 ]; then
+            mv "$temp_output" "$output"
+            log_message "SUCCESS" "Successfully converted '$input' to '$output'." "$LOG_FILE"
+        else
+            log_message "ERROR" "Failed to convert '$input'." "$ERROR_LOG"
+            rm -f "$temp_output"
+        fi
+
+    } &> "$tmp_log"  # Redirect everything for this job into the temp log
+
+    # Show the output once the job completes
+    echo -e "\n📄 Output for: $filename\n"
+    cat "$tmp_log"
+    rm -f "$tmp_log"
 }
 
-
-
 # Process each video file.
-CURRENT_JOBS=0
-
 for f in "${files[@]}"; do
-    (
-        process_video "$f"
-    ) &
-
-    ((CURRENT_JOBS++))
-    if (( CURRENT_JOBS >= MAX_JOBS )); then
-        wait -n
-        ((CURRENT_JOBS--))
-    fi
+    process_video "$f"
 done
-
-wait  # wait for any remaining jobs
