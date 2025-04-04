@@ -24,17 +24,17 @@ cleanup() {
 
     # If a temp output file was being written, remove it
     if [[ -n "$CURRENT_TEMP" && -f "$CURRENT_TEMP" ]]; then
-        echo ".. Removing temp file: $CURRENT_TEMP"
+        echo "   - Removing temp file: $CURRENT_TEMP"
         rm -f "$CURRENT_TEMP"
     fi
 
     # If the input file was moved, restore it
     if [[ -n "$CURRENT_INPUT" && -f "$CURRENT_INPUT" && -n "$ORIGINAL_PATH" ]]; then
-        echo ".. Moving file back to original location: $ORIGINAL_PATH"
+        echo "   - Moving file back to original location: $ORIGINAL_PATH"
         mv "$CURRENT_INPUT" "$ORIGINAL_PATH"
     fi
 
-    echo "Done."
+    echo "  Done."
     exit 1
 }
 trap cleanup SIGINT SIGTERM
@@ -48,7 +48,7 @@ CURRENT_INPUT=""
 CURRENT_TEMP=""
 ORIGINAL_PATH=""
 
-ENCODER="videotoolbox"
+ENCODER="libx264"
 
 # Display help message and exit
 display_help() {
@@ -56,7 +56,8 @@ display_help() {
     echo ""
     echo "Options:"
     echo "  -d             Dry run mode: list files to convert without converting"
-    echo "  -e, --encoder [videotoolbox|libx264]  Choose encoder (default: videotoolbox)"
+    echo "  -f, --fast     Use fast hardware-accelerated encoding (videotoolbox). Lower file sizes and lower bitrate."
+    echo "  -e, --encoder [videotoolbox|libx264]  Manually choose encoder (default: libx264)"
     echo "  -h, --help     Show this help message and exit"
     exit 0
 }
@@ -73,6 +74,9 @@ while [[ "$#" -gt 0 ]]; do
                 echo "Valid options: videotoolbox, libx264"
                 exit 1
             fi
+            ;;
+        -f|--fast)
+            ENCODER="videotoolbox"
             ;;
         -h|--help) display_help ;;
         *) echo "Unknown option: $1" ; display_help ;;
@@ -113,11 +117,11 @@ log_message() {
             ;;
         INFO)
             emoji=""
-            color="\033[0;34m"
+            color="\033[032m"
             ;;
         INFO2)
             emoji=""
-            color="\033[0;95m"
+            color="\033[0;32m"
             ;;
         *)
             emoji=""
@@ -211,11 +215,12 @@ process_video() {
         return 0
     fi
 
-    log_message "INFO" "Converting '$input' to temporary file '$temp_output'..." "$LOG_FILE"
+    log_message "INFO" "Converting '$input' to temp file '$temp_output'..." "$LOG_FILE"
 
     duration=$(ffprobe -v error -select_streams v:0 -show_entries format=duration \
         -of default=noprint_wrappers=1:nokey=1 "$input")
     if [ -n "$duration" ]; then
+        echo ""
         duration_int=${duration%.*}
         hours=$((duration_int/3600))
         minutes=$(((duration_int % 3600)/60))
