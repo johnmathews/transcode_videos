@@ -48,14 +48,16 @@ CURRENT_INPUT=""
 CURRENT_TEMP=""
 ORIGINAL_PATH=""
 
+ENCODER="videotoolbox"
 
 # Display help message and exit
 display_help() {
     echo "Usage: $0 [OPTIONS]"
     echo ""
     echo "Options:"
-    echo "  -d         Dry run mode: list files to convert without converting"
-    echo "  -h, --help Show this help message and exit"
+    echo "  -d             Dry run mode: list files to convert without converting"
+    echo "  -e, --encoder [videotoolbox|libx264]  Choose encoder (default: videotoolbox)"
+    echo "  -h, --help     Show this help message and exit"
     exit 0
 }
 
@@ -63,6 +65,15 @@ display_help() {
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
         -d) DRY_RUN=true ;;
+        -e|--encoder)
+            shift
+            ENCODER="$1"
+            if [[ "$ENCODER" != "videotoolbox" && "$ENCODER" != "libx264" ]]; then
+                echo "❌ Unsupported encoder: $ENCODER"
+                echo "Valid options: videotoolbox, libx264"
+                exit 1
+            fi
+            ;;
         -h|--help) display_help ;;
         *) echo "Unknown option: $1" ; display_help ;;
     esac
@@ -212,9 +223,15 @@ process_video() {
         log_message "INFO2" "Duration: ${hours}h ${minutes}m ${seconds}s" "$LOG_FILE"
     fi
 
-    CONVERT_CMD=(nice -n 10 ffmpeg -nostdin -hide_banner -loglevel error -progress - -i "$input" \
-        -c:v libx264 -preset slow -crf 18 \
-        -c:a aac -b:a 256k "$temp_output")
+    if [[ "$ENCODER" == "libx264" ]]; then
+        CONVERT_CMD=(nice -n 10 ffmpeg -nostdin -hide_banner -loglevel error -progress - -i "$input" \
+            -c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p \
+            -c:a aac -b:a 256k "$temp_output")
+    else
+        CONVERT_CMD=(nice -n 10 ffmpeg -nostdin -hide_banner -loglevel error -progress - -i "$input" \
+            -c:v h264_videotoolbox -b:v 20000k -pix_fmt yuv420p \
+            -c:a aac -b:a 256k "$temp_output")
+    fi
 
     "${CONVERT_CMD[@]}" 2>&1 | awk '
     BEGIN {
