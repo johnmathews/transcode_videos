@@ -213,7 +213,7 @@ process_video() {
     fi
 
     CONVERT_CMD=(nice -n 10 ffmpeg -nostdin -hide_banner -loglevel error -progress - -i "$input" \
-        -c:v h264_videotoolbox -b:v 6000k -pix_fmt yuv420p \
+        -c:v h264_videotoolbox -q:v 10 -pix_fmt yuv420p \
         -c:a aac -b:a 256k "$temp_output")
 
     "${CONVERT_CMD[@]}" 2>&1 | awk '
